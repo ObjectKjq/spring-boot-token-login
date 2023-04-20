@@ -1,0 +1,9 @@
+#配置数信息
+spring:
+  datasource:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/userdb?serverTimezone=GMT%2B8&useSSL=true
+      username: root
+      password: kjq
+mybatis:
+  mapper-locations: classpath:mapper/*.xml

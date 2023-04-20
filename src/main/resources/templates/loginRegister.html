@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0px;
+            padding: 0px;
+        }
+        body{
+            width: 100%;
+            height: 100vh;
+            background-image: linear-gradient(36deg, rgb(191, 218, 235), rgb(255, 233, 224));
+        }
+        .div-center{
+            position: relative;
+            top: 50%;
+            left: 50%;
+            width: 650px;
+            height: 415px;
+            transform: translate(-50%, -50%);
+            display: flex;
+        }
+        .div-center::before{
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url(../images/1650272740786.png);
+            background-repeat: no-repeat;
+            background-size: cover;
+            z-index: -1;
+            border-radius: 5px;
+            box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
+            opacity: 1;
+        }
+        .hide{
+            position: absolute;
+            width: 320px;
+            height: 500px;
+            top: -10%;
+            left: 5%;
+            background-color: rgba(37, 61, 78, 0.5);
+            border-radius: 5px;
+            transition: .5s linear;
+        }
+        .login{
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+        }
+        .register{
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            /* visibility: hidden; */
+        }
+        h3{
+            color: #fff;
+            font-size: 40px;
+            margin-bottom: 50px;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        }
+        input{
+            border: none;
+            outline: none;
+            margin-bottom: 30px;
+            height: 16px;
+            width: 70%;
+            padding: 10px;
+            font-size: 15px;
+            transition: all .3s linear;
+        }
+        input:focus{
+            transform: scale(1.05);
+            box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(37, 61, 78, 1);
+        }
+        button{
+            border: none;
+            background-color: rgb(100, 31, 37);
+            width: 40%;
+            padding: 10px;
+            cursor: pointer;
+            color: #fff;
+            box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.4);
+        }
+        .left,.right{
+            width: 50%;
+            height: 100%;
+        }
+        .to-login,.to-register{
+            /* display: inline-block; */
+            width: 100px;
+            height: 30px;
+            background-color: #fff;
+            line-height: 30px;
+            text-align: center;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 300px auto;
+        }
+        .hidden{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="div-center">
+    <div class="hide">
+        <div class="login">
+            <h3>LOGIN</h3>
+            <input type="text" name="username">
+            <input type="password" name="password">
+            <button class="login-btn">登录</button>
+        </div>
+        <div class="register hidden">
+            <h3>REGISTER</h3>
+            <input type="text" name="username">
+            <input type="password" name="password">
+            <button class="register-btn">注册</button>
+        </div>
+    </div>
+    <div class="left">
+        <div class="to-login hidden">去登录</div>
+    </div>
+    <div class="right">
+        <div class="to-register">去注册</div>
+    </div>
+</div>
+<div class="login-success"></div>
+<script>
+    let btnLogin = document.getElementsByClassName("to-login")[0];
+    let btnRegister = document.getElementsByClassName("to-register")[0];
+    let hide = document.getElementsByClassName("hide")[0];
+
+    // 获取登录按钮
+    let login = document.getElementsByClassName("login-btn")[0];
+    // 获取注册按钮
+    let register = document.getElementsByClassName("register-btn")[0];
+    btnLogin.onclick = function(){
+        hide.style.transform = "translateX(0%)";
+        btnLogin.classList.add("hidden");
+        btnRegister.classList.remove("hidden");
+        hide.childNodes[1].classList.remove('hidden');
+        hide.childNodes[3].classList.add('hidden');
+    };
+    btnRegister.onclick = function(){
+        hide.style.transform = "translateX(80%)";
+        btnRegister.classList.add('hidden');
+        btnLogin.classList.remove("hidden");
+        hide.childNodes[1].classList.add('hidden');
+        hide.childNodes[3].classList.remove('hidden');
+    };
+    //登录事件
+    login.onclick = function(){
+        // 获取用户名密码
+        let password = login.previousSibling.previousSibling.value;
+        let username = login.previousSibling.previousSibling.previousSibling.previousSibling.value;
+        let responsePromise = fetch('../login',{
+            method:'POST',
+            headers:{
+                'Content-Type':'application/x-www-form-urlencoded',
+            },
+            body: `username=${username}&password=${password}`,
+        });
+        responsePromise.then((response) => {
+            return response.json();
+        }).then((json) => {
+            //判断有没有错误消息，如果有就登录失败。
+            if(json.message === undefined){
+                //保存token
+                localStorage.setItem('token', json.token);
+                //跳转index页面，展示用户姓名。
+                fetch('../index',{
+                    method:'GET',
+                    headers:{
+                        'token':localStorage.getItem('token'),
+                    },
+                }).then((response)=>{
+                    return response.json();
+                }).then((json)=>{
+                    if(json.username === undefined){
+                        alert("跳转页面失败");
+                    }else{
+                        let login = document.getElementsByClassName("div-center")[0];
+                        let loginSuccess = document.getElementsByClassName("login-success")[0];
+                        login.classList.add("hidden");
+                        loginSuccess.innerHTML = "欢迎您："+json.username;
+                    }
+                })
+            }else{
+                //如果出错，弹出错误消息
+                alert(json.message);
+            }
+        });
+    };
+    //用户注册
+    register.onclick = function(){
+
+    }
+</script>
+</body>
+</html>

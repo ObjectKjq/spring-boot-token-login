@@ -1,5 +1,7 @@
 ## 下载
 
+项目在主分支下
+
 git clone https://github.com/ObjectKjq/spring-boot-token-login.git
 
 ## 创建数据库
